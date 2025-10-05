@@ -13,4 +13,6 @@ This project benefits users by providing early warnings about poor air quality, 
 <img width="1920" height="1080" alt="Screenshot 2025-10-05 230540" src="https://github.com/user-attachments/assets/7f84cc8b-f134-4cc6-b08c-1d5e0430f563" />
 <img width="1920" height="1080" alt="Screenshot 2025-10-05 230634" src="https://github.com/user-attachments/assets/0848c7d3-f67a-48a8-9263-6581c3200436" />
 <img width="1920" height="1080" alt="Screenshot 2025-10-05 230647" src="https://github.com/user-attachments/assets/3a84c5da-0492-45b2-bf33-50e19c0f1fae" />
-![WhatsApp Image 2025-10-05 at 23 29 30_141ababf](https://github.com/user-attachments/assets/5785e336-7dfb-490c-8e53-630f5bbcfa53)
+
+
+![WhatsApp Image 2025-10-05 at 23 29 30_0748c109](https://github.com/user-attachments/assets/cfdbc6ca-6cfa-44d2-8eb0-8dc687616c2b)
