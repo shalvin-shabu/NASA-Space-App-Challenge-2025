@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <nav>
+        <a href="quiz.html" class="nav-link"> <img src="quiz.jpg" alt="Quiz Icon"> </a>
+    </nav>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Analysis | Select Location</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title h1 {
+            color: white;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Small nav icon (quiz) */
+        nav .nav-link img {
+            width: 100px;
+            height: auto;
+            display: inline-block;
+            vertical-align: middle;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+
+        nav .nav-link img:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .world-map {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .world-map img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .pin {
+            position: absolute;
+            transform: translate(-50%, -100%);
+            background: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            transition: all 0.3s ease;
+            border: 3px solid white;
+            z-index: 100;
+            cursor: pointer;
+        }
+
+        .pin:hover {
+            background: #c0392b;
+            transform: translate(-50%, -100%) scale(1.15);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+
+        .pin span {
+            white-space: nowrap;
+        }
+
+        /* Pin positions */
+        .LosAngeles { left: 22%; top: 40%; }
+        .Canberra { left: 85%; top: 75%; }
+        .NewDelhi { left: 68%; top: 42%; }
+        .London { left: 48%; top: 35%; }
+        .Tokyo { left: 82%; top: 42%; }
+
+        #status-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            min-height: 150px;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 16px;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .message-success {
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .message-error {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alerts, .results {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .alerts ul, .results ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .alerts li, .results li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .alerts li:last-child, .results li:last-child {
+            border-bottom: none;
+        }
+
+        .coordinates {
+            background: #e8f4fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            border-left: 4px solid #3498db;
+        }
+
+        .plot-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .plot-placeholder {
+            background: white;
+            padding: 40px 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px dashed #ddd;
+        }
+
+        .plot-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .plot-btn {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .plot-btn:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">
+        <h1>🌎 Air Quality Forecast App</h1>
+    </div>
+
+    <div class="world-map">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Equirectangular_projection_SW.jpg" 
+             alt="World Map" 
+             onerror="this.src='https://via.placeholder.com/1000x500/667eea/ffffff?text=World+Map'">
+
+        <a href="#" class="pin LosAngeles" data-location-name="Los Angeles" data-lat="34.0522" data-lng="-118.2437">
+            <span>Los Angeles</span>
+        </a>
+        <a href="#" class="pin Canberra" data-location-name="Canberra" data-lat="-35.2809" data-lng="149.1300">
+            <span>Canberra</span>
+        </a>
+        <a href="#" class="pin NewDelhi" data-location-name="New Delhi" data-lat="28.6139" data-lng="77.2090">
+            <span>New Delhi</span>
+        </a>
+        <a href="#" class="pin London" data-location-name="London" data-lat="51.5074" data-lng="-0.1278">
+            <span>London</span>
+        </a>
+        <a href="#" class="pin Tokyo" data-location-name="Tokyo" data-lat="35.6762" data-lng="139.6503">
+            <span>Tokyo</span>
+        </a>
+    </div>
+
+    <div id="status-container">
+        <p class="message">Click a pin on the map to begin the air quality analysis.</p>
+    </div>
+
+    <script>
+        // Air quality data generator
+        class AirQualityAnalyzer {
+            constructor() {
+                this.pollutants = ['pm25', 'pm10', 'o3', 'no2', 'so2', 'co'];
+                this.healthThresholds = {
+                    'pm25': 35,
+                    'pm10': 50,
+                    'o3': 70,
+                    'no2': 40,
+                    'so2': 20,
+                    'co': 4000
+                };
+            }
+
+            generateMockData(locationName, days = 7) {
+                const data = [];
+                const now = new Date();
+                
+                // Generate data for the past 'days' days + 1 day forecast
+                for (let i = -days * 24; i <= 24; i++) {
+                    const timestamp = new Date(now.getTime() + i * 60 * 60 * 1000);
+                    const record = { datetime: timestamp };
+                    
+                    this.pollutants.forEach(pollutant => {
+                        // Base values with location-specific variations
+                        let baseValue;
+                        switch(locationName) {
+                            case 'New Delhi':
+                                baseValue = this.getDelhiValue(pollutant, i);
+                                break;
+                            case 'Los Angeles':
+                                baseValue = this.getLAValue(pollutant, i);
+                                break;
+                            case 'Canberra':
+                                baseValue = this.getCanberraValue(pollutant, i);
+                                break;
+                            case 'London':
+                                baseValue = this.getLondonValue(pollutant, i);
+                                break;
+                            case 'Tokyo':
+                                baseValue = this.getTokyoValue(pollutant, i);
+                                break;
+                            default:
+                                baseValue = this.getDefaultValue(pollutant, i);
+                        }
+                        
+                        // Add some randomness
+                        const randomVariation = (Math.random() - 0.5) * 10;
+                        record[pollutant] = Math.max(0, baseValue + randomVariation);
+                    });
+                    
+                    data.push(record);
+                }
+                
+                return data;
+            }
+
+            getDelhiValue(pollutant, hourOffset) {
+                const baseValues = {
+                    'pm25': 80 + Math.sin(hourOffset / 24) * 30,
+                    'pm10': 120 + Math.sin(hourOffset / 24) * 40,
+                    'o3': 45 + Math.sin(hourOffset / 12) * 15,
+                    'no2': 60 + Math.sin(hourOffset / 24) * 20,
+                    'so2': 15 + Math.sin(hourOffset / 24) * 8,
+                    'co': 2000 + Math.sin(hourOffset / 24) * 800
+                };
+                return baseValues[pollutant];
+            }
+
+            getLAValue(pollutant, hourOffset) {
+                const baseValues = {
+                    'pm25': 25 + Math.sin(hourOffset / 24) * 10,
+                    'pm10': 40 + Math.sin(hourOffset / 24) * 15,
+                    'o3': 50 + Math.sin(hourOffset / 12) * 20,
+                    'no2': 30 + Math.sin(hourOffset / 24) * 10,
+                    'so2': 8 + Math.sin(hourOffset / 24) * 4,
+                    'co': 1200 + Math.sin(hourOffset / 24) * 400
+                };
+                return baseValues[pollutant];
+            }
+
+            getCanberraValue(pollutant, hourOffset) {
+                const baseValues = {
+                    'pm25': 12 + Math.sin(hourOffset / 24) * 6,
+                    'pm10': 20 + Math.sin(hourOffset / 24) * 10,
+                    'o3': 25 + Math.sin(hourOffset / 12) * 10,
+                    'no2': 15 + Math.sin(hourOffset / 24) * 8,
+                    'so2': 5 + Math.sin(hourOffset / 24) * 3,
+                    'co': 800 + Math.sin(hourOffset / 24) * 300
+                };
+                return baseValues[pollutant];
+            }
+
+            getLondonValue(pollutant, hourOffset) {
+                const baseValues = {
+                    'pm25': 18 + Math.sin(hourOffset / 24) * 8,
+                    'pm10': 25 + Math.sin(hourOffset / 24) * 12,
+                    'o3': 35 + Math.sin(hourOffset / 12) * 15,
+                    'no2': 35 + Math.sin(hourOffset / 24) * 12,
+                    'so2': 6 + Math.sin(hourOffset / 24) * 3,
+                    'co': 900 + Math.sin(hourOffset / 24) * 300
+                };
+                return baseValues[pollutant];
+            }
+
+            getTokyoValue(pollutant, hourOffset) {
+                const baseValues = {
+                    'pm25': 22 + Math.sin(hourOffset / 24) * 10,
+                    'pm10': 35 + Math.sin(hourOffset / 24) * 15,
+                    'o3': 40 + Math.sin(hourOffset / 12) * 15,
+                    'no2': 25 + Math.sin(hourOffset / 24) * 10,
+                    'so2': 7 + Math.sin(hourOffset / 24) * 4,
+                    'co': 1100 + Math.sin(hourOffset / 24) * 400
+                };
+                return baseValues[pollutant];
+            }
+
+            getDefaultValue(pollutant, hourOffset) {
+                const baseValues = {
+                    'pm25': 20 + Math.sin(hourOffset / 24) * 10,
+                    'pm10': 30 + Math.sin(hourOffset / 24) * 15,
+                    'o3': 35 + Math.sin(hourOffset / 12) * 15,
+                    'no2': 25 + Math.sin(hourOffset / 24) * 10,
+                    'so2': 8 + Math.sin(hourOffset / 24) * 4,
+                    'co': 1000 + Math.sin(hourOffset / 24) * 400
+                };
+                return baseValues[pollutant];
+            }
+
+            analyzeData(data, locationName) {
+                const results = [];
+                const alerts = [];
+                const currentValues = {};
+
+                // Get current values (latest data point)
+                const currentData = data[data.length - 1];
+                this.pollutants.forEach(pollutant => {
+                    currentValues[pollutant] = currentData[pollutant];
+                });
+
+                // Analyze each pollutant
+                this.pollutants.forEach(pollutant => {
+                    const values = data.map(d => d[pollutant]);
+                    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+                    const max = Math.max(...values);
+                    const current = currentValues[pollutant];
+
+                    results.push(`📊 ${pollutant.toUpperCase()}: Current ${current.toFixed(1)}, Avg ${avg.toFixed(1)}, Max ${max.toFixed(1)} µg/m³`);
+
+                    // Check for alerts
+                    if (current > this.healthThresholds[pollutant]) {
+                        alerts.push(`🚨 High ${pollutant.toUpperCase()} levels: ${current.toFixed(1)} (Threshold: ${this.healthThresholds[pollutant]})`);
+                    }
+                });
+
+                // Overall assessment
+                const avgPM25 = data.reduce((sum, d) => sum + d.pm25, 0) / data.length;
+                if (avgPM25 > 35) {
+                    results.push("🎯 Recommendation: Limit outdoor activities due to poor air quality");
+                } else if (avgPM25 > 25) {
+                    results.push("🎯 Recommendation: Air quality is moderate");
+                } else {
+                    results.push("🎯 Recommendation: Air quality is good");
+                }
+
+                return { results, alerts, currentValues, data };
+            }
+
+            generatePlot(pollutant, data, locationName, container) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 600;
+                canvas.height = 300;
+                canvas.style.maxWidth = '100%';
+                canvas.style.border = '1px solid #ddd';
+                canvas.style.background = 'white';
+                container.appendChild(canvas);
+
+                const ctx = canvas.getContext('2d');
+                
+                // Simple chart drawing
+                this.drawSimpleChart(ctx, pollutant, data, locationName);
+            }
+
+            drawSimpleChart(ctx, pollutant, data, locationName) {
+                const width = ctx.canvas.width;
+                const height = ctx.canvas.height;
+                const padding = 40;
+
+                // Clear canvas
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, width, height);
+
+                // Chart area
+                const chartWidth = width - 2 * padding;
+                const chartHeight = height - 2 * padding;
+
+                // Find min and max values
+                const values = data.map(d => d[pollutant]);
+                const minVal = Math.min(...values);
+                const maxVal = Math.max(...values);
+                const range = maxVal - minVal;
+
+                // Draw title
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${pollutant.toUpperCase()} - ${locationName}`, width / 2, 20);
+
+                // Draw axes
+                ctx.strokeStyle = '#ccc';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(padding, padding);
+                ctx.lineTo(padding, height - padding);
+                ctx.lineTo(width - padding, height - padding);
+                ctx.stroke();
+
+                // Draw data line
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+
+                data.forEach((point, index) => {
+                    const x = padding + (index / (data.length - 1)) * chartWidth;
+                    const y = height - padding - ((point[pollutant] - minVal) / range) * chartHeight;
+                    
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                ctx.stroke();
+
+                // Draw current value marker
+                const currentPoint = data[data.length - 1];
+                const currentX = width - padding;
+                const currentY = height - padding - ((currentPoint[pollutant] - minVal) / range) * chartHeight;
+                
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.arc(currentX, currentY, 6, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Draw labels
+                ctx.fillStyle = '#666';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(`Max: ${maxVal.toFixed(1)}`, width - padding, padding - 5);
+                ctx.fillText(`Min: ${minVal.toFixed(1)}`, width - padding, padding + 10);
+                ctx.fillText(`Current: ${currentPoint[pollutant].toFixed(1)}`, width - padding, padding + 25);
+            }
+        }
+
+        // Main application
+        const analyzer = new AirQualityAnalyzer();
+        const locationPins = document.querySelectorAll('.pin');
+        const statusContainer = document.getElementById('status-container');
+
+        locationPins.forEach(pin => {
+            pin.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                const latitude = this.dataset.lat;
+                const longitude = this.dataset.lng;
+                const locationName = this.dataset.locationName;
+
+                // Display loading message
+                statusContainer.innerHTML = `
+                    <div class="loader"></div>
+                    <p class="message">Running air quality analysis for <strong>${locationName}</strong>...</p>
+                    <div class="coordinates">
+                        <strong>Coordinates:</strong> Latitude: ${latitude}, Longitude: ${longitude}
+                    </div>
+                    <p class="message">Generating mock data and analysis...</p>
+                `;
+
+                // Simulate processing time
+                setTimeout(() => {
+                    analyzeLocation(locationName, latitude, longitude);
+                }, 1500);
+            });
+        });
+
+        function analyzeLocation(locationName, lat, lng) {
+            try {
+                // Generate mock data
+                const data = analyzer.generateMockData(locationName, 7);
+                
+                // Analyze the data
+                const analysis = analyzer.analyzeData(data, locationName);
+                
+                // Display results
+                displayResults(locationName, lat, lng, analysis, data);
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                statusContainer.innerHTML = `
+                    <p class="message message-error">❌ Error: Analysis failed</p>
+                    <p class="message">${error.message}</p>
+                `;
+            }
+        }
+
+        function displayResults(locationName, lat, lng, analysis, data) {
+            let resultsHtml = `
+                <p class="message message-success">✅ Air quality analysis completed for ${locationName}</p>
+                <div class="coordinates">
+                    <strong>Location:</strong> ${locationName}<br>
+                    <strong>Coordinates:</strong> Latitude: ${lat}, Longitude: ${lng}
+                </div>
+            `;
+            
+            // Display alerts
+            if (analysis.alerts.length > 0) {
+                resultsHtml += `
+                    <div class="alerts">
+                        <p class="message"><strong>🚨 Air Quality Alerts:</strong></p>
+                        <ul>
+                            ${analysis.alerts.map(alert => `<li class="message">${alert}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // Display analysis results
+            resultsHtml += `
+                <div class="results">
+                    <p class="message"><strong>📊 Analysis Results:</strong></p>
+                    <ul>
+                        ${analysis.results.map(result => `<li class="message">${result}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            // Add plot containers for each pollutant
+            analyzer.pollutants.forEach(pollutant => {
+                resultsHtml += `
+                    <div class="plot-container">
+                        <p class="message"><strong>📈 ${pollutant.toUpperCase()} Trend</strong></p>
+                        <div class="plot-placeholder" id="plot-${pollutant}">
+                            <p>Chart for ${pollutant.toUpperCase()}</p>
+                            <div class="plot-buttons">
+                                <button class="plot-btn" onclick="generatePlot('${pollutant}')">
+                                    Show Chart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsHtml += `
+                <p class="message">💾 Analysis completed successfully.</p>
+                <p class="message">You can click another location to analyze its air quality.</p>
+            `;
+            
+            statusContainer.innerHTML = resultsHtml;
+            
+            // Store data for plot generation
+            window.currentAnalysisData = data;
+            window.currentLocationName = locationName;
+        }
+
+        // Global function for plot generation
+        window.generatePlot = function(pollutant) {
+            const plotContainer = document.getElementById(`plot-${pollutant}`);
+            if (plotContainer && window.currentAnalysisData) {
+                plotContainer.innerHTML = '';
+                analyzer.generatePlot(pollutant, window.currentAnalysisData, window.currentLocationName, plotContainer);
+            }
+        };
+
+        // Add interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const pins = document.querySelectorAll('.pin');
+            pins.forEach((pin, index) => {
+                pin.style.animationDelay = `${index * 0.2}s`;
+            });
+        });
+    </script>
+</body>
+</html>
