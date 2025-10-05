@@ -3,12 +3,3 @@ Our project is a web-based pollution prediction platform that uses machine learn
 
 This project benefits users by providing early warnings about poor air quality, helping them protect their health and plan their day safely. It transforms complex environmental data into simple, actionable insights, making pollution awareness accessible to everyone. Built using VS Code, Flask, Python, HTML, CSS, JavaScript, and Three.js, the system emphasizes prediction accuracy, real-time performance, and user-friendliness. Overall, it has a positive impact by promoting health-conscious behavior, inspiring environmental responsibility, and supporting the broader goal of creating cleaner and safer communities.
 
-<img width="1920" height="1080" alt="Screenshot 2025-10-05 230647" src="https://github.com/user-attachments/assets/505672b6-3805-422a-a227-47373fc5761c" />
-<img width="1920" height="1080" alt="Screenshot 2025-10-05 230634" src="https://github.com/user-attachments/assets/ba5ea9e9-538e-41ff-8317-e81bc4c4c181" />
-<img width="1920" height="1080" alt="Screenshot 2025-10-05 230603" src="https://github.com/user-attachments/assets/5b21805a-6ac3-45e0-8f57-62de3f23eb58" />
-<img width="1920" height="1080" alt="Screenshot 2025-10-05 230554" src="https://github.com/user-attachments/assets/2449448e-46e9-4886-870c-cfcbd9353395" />
-<img width="1920" height="1080" alt="Screenshot 2025-10-05 230548" src="https://github.com/user-attachments/assets/e28304a3-d44a-4ba1-b286-b1e1d30d5dfe" />
-<img width="1920" height="1080" alt="Screenshot 2025-10-05 230540" src="https://github.com/user-attachments/assets/ee552da0-178d-4c71-9ba6-7b442ccfaaf1" />
-<img width="1920" height="1080" alt="Screenshot 2025-10-05 230525" src="https://github.com/user-attachments/assets/fc13db35-f8ba-4449-a026-bfb3fa97464c" />
-<img width="1920" height="1080" alt="Screenshot 2025-10-05 230439" src="https://github.com/user-attachments/assets/afc768b7-1e6c-4175-9f6c-923d667a29b5" />
-<img width="1920" height="1080" alt="Screenshot 2025-10-05 230416" src="https://github.com/user-attachments/assets/6ee0f223-3a2a-42fa-9189-a08d145427c6" />
