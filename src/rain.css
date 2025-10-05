@@ -1,0 +1,111 @@
+/* General Reset and Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+}
+
+/* Title Section Styling */
+.title {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.title h1 {
+    color: #007bff;
+    margin-bottom: 5px;
+}
+
+.title p {
+    font-size: 1.1em;
+    color: #666;
+}
+
+/* World Map Container Styling */
+.world-map {
+    position: relative; /* Crucial for positioning the pins */
+    width: 100%; /* Adjust as needed */
+/* Max size for the map */
+    border: 3px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.world-map img {
+    
+    width: 100%; /* Make image fill the container */
+    
+}
+
+/* Pin Base Styling */
+.pin {
+    position: absolute;
+    width: 12px; /* Base size of the pin head */
+    height: 12px;
+    background-color: red;
+    border-radius: 50%; /* Makes it a circle */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    /* Center the pin visually on the specified coordinates */
+    transform: translate(-50%, -50%);
+    z-index: 10; /* Ensures pins are above the map image */
+}
+
+.pin:hover {
+    background-color: darkred;
+    transform: translate(-50%, -50%) scale(1.2); /* Slight increase on hover */
+    z-index: 11; /* Bring hovered pin to the front */
+}
+
+/* Pin Label/Tooltip Styling */
+.pin span {
+    position: absolute;
+    bottom: 100%; /* Position above the pin */
+    left: 50%;
+    transform: translateX(-50%) translateY(-5px); /* Center and offset from pin */
+    white-space: nowrap;
+    background-color: #333;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    opacity: 0; /* Initially hidden */
+    pointer-events: none; /* Allows clicks to pass through to the pin itself */
+    transition: opacity 0.3s;
+}
+
+.pin:hover span {
+    opacity: 1; /* Show on hover */
+}
+
+/* Specific Pin Positioning (Coordinates are based on a conceptual map image) 
+   NOTE: The exact percentages depend on the specific 'earth_daymap.jpg' used. 
+   These are approximate for a standard rectangular world map. 
+   Format: top (latitude) / left (longitude) 
+*/
+
+.pin.LosAngeles {
+    /* Approx. location: North America */
+    top: 30%; 
+    left: 25%;
+}
+
+.pin.NewDelhi {
+    /* Approx. location: India */
+    top: 38%; 
+    left: 71.5%;
+}
+.pin.Canberra {
+    /* Approx. location: Australia */
+    top: 63%; 
+    left: 90%;
+}
+.nav-link{
+    padding: 10px 15px;
+}
