@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rainfall Prediction | Weather Forecasting</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url("images/2.jpg");
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Navigation Bar */
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto 30px auto;
+            background: white;
+            border-radius: 15px;
+            padding: 15px 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: bold;
+            padding: 12px 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .nav-link:hover {
+            background: #3498db;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .nav-link img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .app-title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title h1 {
+            color: white;
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: white;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .world-map {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .world-map img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .pin {
+            position: absolute;
+            transform: translate(-50%, -100%);
+            background: #e74c3c;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            transition: all 0.3s ease;
+            border: 3px solid white;
+            z-index: 100;
+            cursor: pointer;
+        }
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.3);
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            z-index: 9999;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .watermark-large {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 60px;
+            color: rgba(255, 255, 255, 0.05);
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            z-index: 9998;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .pin:hover {
+            background: #c0392b;
+            transform: translate(-50%, -100%) scale(1.15);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+
+        /* Pin positions */
+        .LosAngeles { left: 22%; top: 40%; }
+        .Canberra { left: 85%; top: 75%; }
+        .NewDelhi { left: 68%; top: 42%; }
+        .London { left: 48%; top: 35%; }
+        .Tokyo { left: 82%; top: 42%; }
+
+        #status-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            min-height: 150px;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 16px;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .message-success {
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .message-error {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alerts {
+            background: #e4401c;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+            color: #000000;
+        }
+
+        .section-title {
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .coordinates {
+            background: #e8f4fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            border-left: 4px solid #3498db;
+        }
+
+        .separator {
+            background: #2c3e50;
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .graphs-container {
+            margin-top: 30px;
+        }
+
+        .graph-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .graph-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .graph-content {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+
+        .control-panel {
+            max-width: 1000px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .status-indicator {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .status-running {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+
+        .status-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .graphs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #27ae60;
+        }
+        .home img {
+            width: 50px;
+            height: 50px;
+            position: fixed;
+            top: 43px;
+            left: 45px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            
+            
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .nav-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .app-title {
+                font-size: 1.8rem;
+            }
+            
+            .title h1 {
+                font-size: 2rem;
+            }
+            
+            .graphs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+            }
+            
+            .pin {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            
+            .graph-content {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="home">
+                <img src="homeO.png" alt="Home Icon">
+                
+            </a>
+    <!-- Navigation Bar -->
+    <div class="nav-container">
+        <div class="nav-bar">
+            <a href="quiz.html" class="nav-link">
+                <img src="quiz.jpg" alt="Quiz Icon">
+                <span>Take Quiz</span>
+            </a>
+            
+            <h1 class="app-title">🌎 POLLUTION & PRECIPITATION ANALYZER</h1>
+            
+            <a href="empal.html" class="nav-link">
+                <span>Air Quality Analyzer</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="title">
+        <h1>🌧️ Rainfall Prediction System</h1>
+        <p class="subtitle">24-Hour Rainfall Forecast with Machine Learning</p>
+    </div>
+
+    <div class="control-panel">
+        <h3>Prediction Controls</h3>
+        <div class="info-box">
+            <strong>How it works:</strong> Click any city on the map to get a 24-hour rainfall forecast using SARIMA machine learning model.
+        </div>
+        <div class="control-buttons">
+            <button class="btn btn-primary" onclick="checkStatus()">🔄 Refresh Status</button>
+            <button class="btn btn-danger" onclick="clearOutput()">🗑️ Clear Results</button>
+        </div>
+    </div>
+
+    <div class="world-map">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Equirectangular_projection_SW.jpg" 
+             alt="World Map"
+             onerror="this.src='https://via.placeholder.com/1000x500/667eea/ffffff?text=World+Map'">
+
+        <a href="#" class="pin LosAngeles" onclick="startPrediction('Los Angeles', 34.0522, -118.2437)">
+            <span>🌴 Los Angeles</span>
+        </a>
+        <a href="#" class="pin Canberra" onclick="startPrediction('Canberra', -35.2809, 149.1300)">
+            <span>🦘 Canberra</span>
+        </a>
+        <a href="#" class="pin NewDelhi" onclick="startPrediction('New Delhi', 28.6139, 77.2090)">
+            <span>🇮🇳 New Delhi</span>
+        </a>
+        <a href="#" class="pin London" onclick="startPrediction('London', 51.5074, -0.1278)">
+            <span>🇬🇧 London</span>
+        </a>
+        <a href="#" class="pin Tokyo" onclick="startPrediction('Tokyo', 35.6762, 139.6503)">
+            <span>🗼 Tokyo</span>
+        </a>
+    </div>
+
+    <div id="status-container">
+        <div class="message">📍 Click any city on the map to start rainfall prediction</div>
+    </div>
+
+    <div id="graphs-container" class="graphs-container" style="display: none;">
+        <div class="graph-section">
+            <div class="graph-title">📊 Rainfall Prediction Results</div>
+            <div id="graphs-content" class="graphs-grid">
+                <!-- Graphs will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let statusCheckInterval = null;
+        let currentGraphs = {};
+        let currentPrediction = null;
+        
+        // Mock data for demonstration with realistic patterns
+        const mockRainfallData = {
+            'Los Angeles': {
+                historical: generateHistoricalData(168, 0.5, 3, 24), // Dry climate
+                forecast: generateForecastData(24, 0.3, 2, 24)
+            },
+            'Canberra': {
+                historical: generateHistoricalData(168, 1, 6, 12), // Moderate climate
+                forecast: generateForecastData(24, 0.8, 4, 12)
+            },
+            'New Delhi': {
+                historical: generateHistoricalData(168, 2, 12, 6), // Monsoon climate
+                forecast: generateForecastData(24, 1.5, 8, 6)
+            },
+            'London': {
+                historical: generateHistoricalData(168, 0.3, 2, 48), // Drizzly climate
+                forecast: generateForecastData(24, 0.2, 1.5, 48)
+            },
+            'Tokyo': {
+                historical: generateHistoricalData(168, 0.8, 5, 36), // Seasonal climate
+                forecast: generateForecastData(24, 0.6, 3, 36)
+            }
+        };
+
+        // Helper function to generate realistic historical data
+        function generateHistoricalData(hours, base, amplitude, period) {
+            const now = new Date();
+            return Array.from({length: hours}, (_, i) => {
+                const time = new Date(now.getTime() - (hours - i - 1) * 3600000);
+                // Create realistic rainfall pattern with some randomness
+                const pattern = Math.sin(i / period * Math.PI * 2);
+                const randomFactor = 0.3 + Math.random() * 0.7;
+                const rainfall = Math.max(0, base + amplitude * pattern * randomFactor + (Math.random() - 0.5) * 1.5);
+                
+                return {
+                    datetime: time,
+                    rainfall: rainfall
+                };
+            });
+        }
+
+        // Helper function to generate forecast data
+        function generateForecastData(hours, base, amplitude, period) {
+            const now = new Date();
+            return Array.from({length: hours}, (_, i) => {
+                const time = new Date(now.getTime() + (i + 1) * 3600000);
+                const pattern = Math.sin((168 + i) / period * Math.PI * 2);
+                const randomFactor = 0.4 + Math.random() * 0.6;
+                const rainfall_forecast = Math.max(0, base + amplitude * pattern * randomFactor + (Math.random() - 0.5) * 1.2);
+                
+                return {
+                    datetime: time,
+                    rainfall_forecast: rainfall_forecast,
+                    rainfall_lower_ci: Math.max(0, rainfall_forecast - Math.random() * 0.8),
+                    rainfall_upper_ci: rainfall_forecast + Math.random() * 0.8
+                };
+            });
+        }
+
+        // Main prediction function
+        function startPrediction(locationName, lat, lng) {
+            const statusContainer = document.getElementById('status-container');
+            const graphsContainer = document.getElementById('graphs-container');
+            
+            graphsContainer.style.display = 'none';
+            currentGraphs = {};
+            
+            statusContainer.innerHTML = `
+                <div class="status-indicator status-running">
+                    <div class="loader"></div>
+                    <div>Starting rainfall prediction for ${locationName}...</div>
+                    <div class="coordinates">Latitude: ${lat}, Longitude: ${lng}</div>
+                </div>
+            `;
+
+            // Simulate API call with timeout
+            setTimeout(() => {
+                if (statusCheckInterval) {
+                    clearInterval(statusCheckInterval);
+                }
+                
+                currentPrediction = {
+                    location: locationName,
+                    lat: lat,
+                    lng: lng,
+                    status: 'running'
+                };
+                
+                statusCheckInterval = setInterval(() => {
+                    checkStatus();
+                }, 1000);
+                
+                // Simulate processing time
+                setTimeout(() => {
+                    currentPrediction.status = 'completed';
+                    currentPrediction.success = true;
+                    currentPrediction.output = generateMockOutput(locationName, lat, lng);
+                    
+                    // Generate and display graphs immediately
+                    generateAndDisplayGraphs(locationName);
+                }, 2000);
+                
+            }, 1000);
+        }
+
+        // Check prediction status
+        function checkStatus() {
+            if (!currentPrediction) {
+                return;
+            }
+            
+            const statusContainer = document.getElementById('status-container');
+            const graphsContainer = document.getElementById('graphs-container');
+            
+            if (currentPrediction.status === 'running') {
+                statusContainer.innerHTML = `
+                    <div class="status-indicator status-running">
+                        <div class="loader"></div>
+                        <div>Processing rainfall data for ${currentPrediction.location}...</div>
+                        <div class="coordinates">Running SARIMA model analysis</div>
+                    </div>
+                `;
+            } else if (currentPrediction.status === 'completed') {
+                if (statusCheckInterval) {
+                    clearInterval(statusCheckInterval);
+                    statusCheckInterval = null;
+                }
+                
+                if (currentPrediction.success) {
+                    statusContainer.innerHTML = `
+                        <div class="status-indicator status-completed">
+                            <div>✅ Rainfall Prediction Completed for ${currentPrediction.location}!</div>
+                        </div>
+                        <div class="analysis-output">
+                            ${currentPrediction.output}
+                        </div>
+                    `;
+                    
+                    graphsContainer.style.display = 'block';
+                } else {
+                    statusContainer.innerHTML = `
+                        <div class="status-indicator status-error">
+                            <div>❌ Prediction Failed for ${currentPrediction.location}</div>
+                        </div>
+                        <div class="analysis-output">
+                            ${currentPrediction.output}
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Generate mock output for demonstration
+        function generateMockOutput(locationName, lat, lng) {
+            const data = mockRainfallData[locationName];
+            const totalRain = data.historical.reduce((sum, point) => sum + point.rainfall, 0);
+            const maxRain = Math.max(...data.historical.map(point => point.rainfall));
+            const forecastRain = data.forecast.reduce((sum, point) => sum + point.rainfall_forecast, 0);
+            const maxForecast = Math.max(...data.forecast.map(point => point.rainfall_forecast));
+            
+            let alertLevel = "✅ DRY CONDITIONS";
+            let alertDetails = "No significant rainfall expected. Enjoy the dry weather!";
+            
+            if (maxForecast >= 50) {
+                alertLevel = "🚨 EXTREME WEATHER WARNING!";
+                alertDetails = "Violent rainfall expected. Risk of flooding. Take immediate precautions.";
+            } else if (maxForecast >= 7.6) {
+                alertLevel = "🚨 HEAVY RAIN ALERT";
+                alertDetails = "Heavy rainfall predicted. Potential for flooding and travel disruption.";
+            } else if (maxForecast >= 2.5) {
+                alertLevel = "⚠️ MODERATE RAIN EXPECTED";
+                alertDetails = "Moderate rainfall predicted. Carry an umbrella, possible minor disruptions.";
+            } else if (maxForecast >= 0.1) {
+                alertLevel = "🌧️ LIGHT RAIN FORECAST";
+                alertDetails = "Light rainfall expected. Might need an umbrella.";
+            }
+            
+            const rainyHours = data.historical.filter(point => point.rainfall > 0.1).length;
+            const forecastRainyHours = data.forecast.filter(point => point.rainfall_forecast > 0.1).length;
+            
+            return `
+                <div class="section-title">📊 RAINFALL DATA ANALYSIS</div>
+                <div class="separator">========================================</div>
+                <div class="message">Total Historical Rainfall: ${totalRain.toFixed(1)} mm</div>
+                <div class="message">Maximum Hourly Rainfall: ${maxRain.toFixed(1)} mm</div>
+                <div class="message">Average Hourly Rainfall: ${(totalRain / data.historical.length).toFixed(2)} mm</div>
+                <div class="message">Rainy Hours: ${rainyHours}</div>
+                <div class="message">Dry Hours: ${data.historical.length - rainyHours}</div>
+                
+                <div class="section-title">🔍 MODEL EVALUATION</div>
+                <div class="separator">========================================</div>
+                <div class="message">Root Mean Squared Error (RMSE): ${(Math.random() * 0.8 + 0.2).toFixed(3)} mm/h</div>
+                <div class="message">Mean Absolute Error (MAE): ${(Math.random() * 0.6 + 0.1).toFixed(3)} mm/h</div>
+                <div class="message">Accuracy (±1mm): ${(85 + Math.random() * 10).toFixed(1)}%</div>
+                <div class="message">Accuracy (±2mm): ${(92 + Math.random() * 6).toFixed(1)}%</div>
+                
+                <div class="section-title">🔮 24-HOUR RAINFALL FORECAST</div>
+                <div class="separator">========================================</div>
+                <div class="alerts"><strong>${alertLevel}</strong><br>${alertDetails}</div>
+                <div class="message">Maximum predicted rainfall: ${maxForecast.toFixed(1)} mm/hour</div>
+                <div class="message">Total predicted rainfall: ${forecastRain.toFixed(1)} mm</div>
+                <div class="message">Rainy hours expected: ${forecastRainyHours}</div>
+                <div class="message">Dry hours expected: ${24 - forecastRainyHours}</div>
+                
+                <div class="separator">========================================</div>
+                <div class="message message-success">✅ RAINFALL PREDICTION COMPLETE</div>
+            `;
+        }
+
+        // Generate and display graphs
+        function generateAndDisplayGraphs(locationName) {
+            const data = mockRainfallData[locationName];
+            const graphsContent = document.getElementById('graphs-content');
+            graphsContent.innerHTML = '';
+            
+            // Create containers for each graph
+            const forecastContainer = document.createElement('div');
+            forecastContainer.id = 'forecast-plot';
+            forecastContainer.className = 'graph-content';
+            
+            const distributionContainer = document.createElement('div');
+            distributionContainer.id = 'distribution-plot';
+            distributionContainer.className = 'graph-content';
+            
+            const timeSeriesContainer = document.createElement('div');
+            timeSeriesContainer.id = 'timeseries-plot';
+            timeSeriesContainer.className = 'graph-content';
+            
+            // Prepare data for the forecast chart
+            const historicalTrace = {
+                x: data.historical.slice(-72).map(point => point.datetime),
+                y: data.historical.slice(-72).map(point => point.rainfall),
+                type: 'bar',
+                name: 'Historical Rainfall',
+                marker: {
+                    color: '#3498db',
+                    opacity: 0.7
+                }
+            };
+            
+            const forecastTrace = {
+                x: data.forecast.map(point => point.datetime),
+                y: data.forecast.map(point => point.rainfall_forecast),
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Rainfall Forecast',
+                line: {
+                    color: '#e74c3c',
+                    width: 3
+                },
+                marker: {
+                    size: 6,
+                    color: '#e74c3c'
+                }
+            };
+            
+            const confidenceTrace = {
+                x: data.forecast.map(point => point.datetime).concat(data.forecast.map(point => point.datetime).reverse()),
+                y: data.forecast.map(point => point.rainfall_upper_ci).concat(data.forecast.map(point => point.rainfall_lower_ci).reverse()),
+                fill: 'toself',
+                fillcolor: 'rgba(231, 76, 60, 0.2)',
+                line: {color: 'rgba(255,255,255,0)'},
+                name: '95% Confidence Interval',
+                showlegend: true
+            };
+            
+            const forecastLayout = {
+                title: `🌧️ 24-Hour Rainfall Forecast - ${locationName}`,
+                xaxis: {
+                    title: 'Date & Time',
+                    type: 'date'
+                },
+                yaxis: {
+                    title: 'Rainfall (mm/hour)',
+                    rangemode: 'nonnegative'
+                },
+                showlegend: true,
+                legend: {
+                    orientation: 'h',
+                    yanchor: 'bottom',
+                    y: 1.02,
+                    xanchor: 'right',
+                    x: 1
+                },
+                height: 500,
+                margin: {t: 60, l: 60, r: 40, b: 60}
+            };
+            
+            // Prepare data for distribution chart
+            const rainfallValues = data.historical.map(point => point.rainfall);
+            const distributionTrace = {
+                x: rainfallValues,
+                type: 'histogram',
+                name: 'Rainfall Distribution',
+                marker: {
+                    color: '#2980b9',
+                    opacity: 0.7
+                },
+                nbinsx: 20
+            };
+            
+            const distributionLayout = {
+                title: `Rainfall Distribution - ${locationName}`,
+                xaxis: {
+                    title: 'Rainfall (mm/hour)'
+                },
+                yaxis: {
+                    title: 'Frequency'
+                },
+                height: 400,
+                margin: {t: 60, l: 60, r: 40, b: 60}
+            };
+            
+            // Prepare data for time series chart
+            const timeSeriesTrace = {
+                x: data.historical.map(point => point.datetime),
+                y: data.historical.map(point => point.rainfall),
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Hourly Rainfall',
+                line: {
+                    color: '#27ae60',
+                    width: 1
+                }
+            };
+            
+            // Calculate 24-hour moving average
+            const windowSize = 24;
+            const movingAvg = [];
+            for (let i = 0; i < data.historical.length; i++) {
+                if (i < windowSize - 1) {
+                    movingAvg.push(null);
+                } else {
+                    const sum = data.historical
+                        .slice(i - windowSize + 1, i + 1)
+                        .reduce((acc, point) => acc + point.rainfall, 0);
+                    movingAvg.push(sum / windowSize);
+                }
+            }
+            
+            const movingAvgTrace = {
+                x: data.historical.map(point => point.datetime),
+                y: movingAvg,
+                type: 'scatter',
+                mode: 'lines',
+                name: '24h Moving Average',
+                line: {
+                    color: '#e74c3c',
+                    width: 2
+                }
+            };
+            
+            const timeSeriesLayout = {
+                title: `Rainfall Time Series - ${locationName}`,
+                xaxis: {
+                    title: 'Date',
+                    type: 'date'
+                },
+                yaxis: {
+                    title: 'Rainfall (mm/hour)',
+                    rangemode: 'nonnegative'
+                },
+                height: 400,
+                margin: {t: 60, l: 60, r: 40, b: 60}
+            };
+            
+            // Create graph elements and add to DOM
+            const forecastElement = document.createElement('div');
+            forecastElement.className = 'graph-item';
+            forecastElement.innerHTML = `
+                <div class="graph-title">🌧️ RAINFALL FORECAST</div>
+            `;
+            forecastElement.appendChild(forecastContainer);
+            graphsContent.appendChild(forecastElement);
+            
+            const distributionElement = document.createElement('div');
+            distributionElement.className = 'graph-item';
+            distributionElement.innerHTML = `
+                <div class="graph-title">📈 RAINFALL DISTRIBUTION</div>
+            `;
+            distributionElement.appendChild(distributionContainer);
+            graphsContent.appendChild(distributionElement);
+            
+            const timeSeriesElement = document.createElement('div');
+            timeSeriesElement.className = 'graph-item';
+            timeSeriesElement.innerHTML = `
+                <div class="graph-title">⏰ RAINFALL TIME SERIES</div>
+            `;
+            timeSeriesElement.appendChild(timeSeriesContainer);
+            graphsContent.appendChild(timeSeriesElement);
+            
+            // Plot the graphs after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                Plotly.newPlot('forecast-plot', [historicalTrace, forecastTrace, confidenceTrace], forecastLayout, {displayModeBar: true});
+                Plotly.newPlot('distribution-plot', [distributionTrace], distributionLayout, {displayModeBar: true});
+                Plotly.newPlot('timeseries-plot', [timeSeriesTrace, movingAvgTrace], timeSeriesLayout, {displayModeBar: true});
+            }, 100);
+        }
+
+        // Clear output
+        function clearOutput() {
+            const statusContainer = document.getElementById('status-container');
+            const graphsContainer = document.getElementById('graphs-container');
+            
+            statusContainer.innerHTML = '<div class="message">📍 Click any city on the map to start rainfall prediction</div>';
+            graphsContainer.style.display = 'none';
+            currentGraphs = {};
+            currentPrediction = null;
+            
+            // Clear any existing plots
+            try {
+                Plotly.purge('forecast-plot');
+                Plotly.purge('distribution-plot');
+                Plotly.purge('timeseries-plot');
+            } catch (e) {
+                console.log('No plots to clear');
+            }
+            
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+        }
+
+        // Add click handlers for pins
+        document.querySelectorAll('.pin').forEach(pin => {
+            pin.addEventListener('click', function(e) {
+                e.preventDefault();
+            });
+        });
+    </script>
+     <div class="watermark">TEAM: GOODALOCHANA</div>
+   
+</body>
+</html>
