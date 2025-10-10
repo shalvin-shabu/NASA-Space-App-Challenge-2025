@@ -1,7 +1,7 @@
 export default {
     root: 'src/',
     publicDir: '../static/',
-    base: './',
+    base: '/NASA-Space-App-Challenge-2025/',
     server:
     {
         host: true, // Open to local network and display URL
