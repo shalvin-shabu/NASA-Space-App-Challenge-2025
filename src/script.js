@@ -770,7 +770,8 @@ if (isMovingTowardsPlanet) {
        isMovingTowardsPlanet = false;
       if (selectedPlanet && selectedPlanet.name === 'Earth') {
         // Open another HTML file when Earth is zoomed in
-        window.open('./empal.html','_self');
+        const targetUrl = `${import.meta.env.BASE_URL}empal.html`;
+        window.location.href = targetUrl;
       } else {
         showPlanetInfo(selectedPlanet.name);
       }
