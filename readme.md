@@ -1,5 +1,5 @@
 # 3D Solar System in THREE.js
-
+link of the project https://shalvin-shabu.github.io/NASA-Space-App-Challenge-2025/
 Welcome to the **3D Solar System** project, a dynamic and interactive simulation of our solar system created using THREE.js and the Vite framework. This project showcases various advanced features and effects to provide an immersive experience of the celestial bodies in our solar system. The project is fully created by Karol Fryc.
 
 Overview available at: https://w21030911.nuwebspace.co.uk/graphics/assessment/
