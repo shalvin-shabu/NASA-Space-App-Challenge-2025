@@ -7,6 +7,11 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 
+// Asset URLs for models used at runtime (resolve under GitHub Pages base)
+import asteroidPackUrl from '/asteroids/asteroidPack.glb';
+import phobosUrl from '/images/mars/phobos.glb';
+import deimosUrl from '/images/mars/deimos.glb';
+
 import bgTexture1 from '/images/1.jpg';
 import bgTexture2 from '/images/2.jpg';
 import bgTexture3 from '/images/3.jpg';
@@ -446,7 +451,7 @@ const earthMoon = [{
 // Mars' moons with path to 3D models (phobos & deimos)
 const marsMoons = [
   {
-    modelPath: '/images/mars/phobos.glb',
+    modelPath: phobosUrl,
     scale: 0.1,
     orbitRadius: 5,
     orbitSpeed: 0.002 * settings.accelerationOrbit,
@@ -454,7 +459,7 @@ const marsMoons = [
     mesh: null
   },
   {
-    modelPath: '/images/mars/deimos.glb',
+    modelPath: deimosUrl,
     scale: 0.1,
     orbitRadius: 9,
     orbitSpeed: 0.0005 * settings.accelerationOrbit,
@@ -765,7 +770,7 @@ if (isMovingTowardsPlanet) {
        isMovingTowardsPlanet = false;
       if (selectedPlanet && selectedPlanet.name === 'Earth') {
         // Open another HTML file when Earth is zoomed in
-        window.open('empal.html','_blank');
+        window.open('./empal.html','_self');
       } else {
         showPlanetInfo(selectedPlanet.name);
       }
@@ -783,8 +788,8 @@ if (isMovingTowardsPlanet) {
   requestAnimationFrame(animate);
   composer.render();
 }
-loadAsteroids('/asteroids/asteroidPack.glb', 1000, 130, 160);
-loadAsteroids('/asteroids/asteroidPack.glb', 3000, 352, 370);
+loadAsteroids(asteroidPackUrl, 1000, 130, 160);
+loadAsteroids(asteroidPackUrl, 3000, 352, 370);
 animate();
 
 window.addEventListener('mousemove', onMouseMove, false);
